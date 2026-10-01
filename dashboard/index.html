@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serialization Benchmark | Research Suite</title>
+  <meta name="description"
+    content="Research control dashboard for benchmarking JSON, GZIP, and MessagePack across synthetic network profiles.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261001_1248">
+  <!-- Chart.js for visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Serialization Benchmark</h1>
+          <p class="brand-subtitle">Automated Evaluation, Break-Even Modeling & Research Suite</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="server-status" id="server-status-badge">
+          <span class="status-dot"></span>
+          <span class="status-label" id="server-status-text">Connected (FastAPI :8765)</span>
+        </div>
+        <a href="/docs" target="_blank" class="btn btn-outline" id="btn-api-docs">API Documentation</a>
+      </div>
+    </header>
+
+    <!-- Primary View Switcher Navigation Bar (4 Views) -->
+    <nav class="view-switcher-bar" id="main-view-switcher">
+      <button type="button" class="view-switcher-btn active" data-view="section-benchmark" id="nav-btn-benchmark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Benchmark Suite & Runner</span>
+      </button>
+      <button type="button" class="view-switcher-btn" data-view="section-calculator" id="nav-btn-calculator">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+          <line x1="8" y1="6" x2="16" y2="6"></line>
+          <line x1="16" y1="14" x2="16" y2="18"></line>
+          <path d="M16 10h.01"></path>
+          <path d="M12 10h.01"></path>
+          <path d="M8 10h.01"></path>
+          <path d="M12 14h.01"></path>
+          <path d="M8 14h.01"></path>
+          <path d="M12 18h.01"></path>
+          <path d="M8 18h.01"></path>
+        </svg>
+        <span>Break-Even & Decision Calculator</span>
+      </button>
+      <button type="button" class="view-switcher-btn" data-view="section-paper" id="nav-btn-paper">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        <span>Research Paper</span>
+      </button>
+      <button type="button" class="view-switcher-btn" data-view="section-contributors" id="nav-btn-contributors">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Contributors</span>
+      </button>
+
+      <!-- Star on GitHub (redirects to repository) -->
+      <a href="https://github.com/v3ravani/Sterilization-Benchmark" target="_blank" rel="noopener noreferrer" class="github-star-btn" id="nav-btn-github-star" title="Star on GitHub" aria-label="Star on GitHub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#ca8a04" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="star-icon">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <span class="star-text">Star on</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="github-logo-icon">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+    </nav>
+
+    <!-- SECTION 1: BENCHMARK SUITE & RUNNER -->
+    <div id="section-benchmark" class="main-view-section">
+      <!-- Main Dashboard Grid -->
+      <main class="dashboard-grid">
+        <!-- Left Column: Configuration Controls -->
+        <section class="card config-card" id="config-card">
+          <div class="card-header">
+            <h2 class="card-title">Benchmark Parameters</h2>
+            <span class="badge-chip">Configuration</span>
+          </div>
+
+          <form id="benchmark-form" class="config-form">
+            <!-- Workload Selection Mode: Exactly 10 Curated Standards -->
+            <div class="form-group">
+              <div class="form-label-row">
+                <label for="workload-select" class="form-label">
+                  <span>Workload Preset</span>
+                  <button type="button" class="info-help-btn" data-info-title="Workload Preset"
+                    data-info-text="Standardized test dataset payload containing synthetic domain objects. Each preset tests different structural depth, data types, and compression redundancy characteristics."
+                    aria-label="Learn about Workload Preset">?</button>
+                </label>
+              </div>
+              <select id="workload-select" class="form-select">
+                <!-- Populated dynamically with the 10 canonical presets -->
+              </select>
+            </div>
+
+            <!-- Workload Info & Dataset Inspection Card -->
+            <div class="workload-info-box" id="workload-info-box">
+              <div class="workload-info-header">
+                <span class="workload-info-name" id="info-workload-name">flat_small_low</span>
+                <span class="badge-chip" id="info-workload-structure">FLAT</span>
+              </div>
+              <p class="workload-info-desc" id="info-workload-desc">Small flat dictionary with scalar types and low
+                redundancy.</p>
+              <div class="workload-meta-pills">
+                <span class="meta-pill" id="info-workload-size">Size: 10 KB</span>
+                <span class="meta-pill" id="info-workload-redundancy">Redundancy: Low</span>
+                <span class="meta-pill" id="info-workload-seed">Seed: 1</span>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline btn-full-width" id="btn-inspect-dataset">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span>Inspect Dataset</span>
+              </button>
+            </div>
+
+            <!-- Network Profile (FAST, MODERATE, SLOW) -->
+            <div class="form-group">
+              <label for="network-profile" class="form-label">
+                <span>Network Profile</span>
+                <button type="button" class="info-help-btn" data-info-title="Network Profile"
+                  data-info-text="Simulates network channel conditions (bandwidth throughput and round-trip propagation latency) using physical transfer models to evaluate realistic WAN, LAN, or Cloud data transmission times."
+                  aria-label="Learn about Network Profile">?</button>
+              </label>
+              <select id="network-profile" class="form-select">
+                <option value="FAST">FAST (1 Gbps, 1ms RTT)</option>
+                <option value="MODERATE">MODERATE (100 Mbps, 15ms RTT)</option>
+                <option value="SLOW" selected>SLOW (10 Mbps, 50ms RTT)</option>
+              </select>
+            </div>
+
+            <!-- Formats Multi-Select -->
+            <div class="form-group">
+              <label class="form-label">
+                <span>Serialization Formats</span>
+                <button type="button" class="info-help-btn" data-info-title="Serialization Formats"
+                  data-info-text="Data interchange formats evaluated in this suite: standard JSON (textual baseline), JSON + GZIP (compression-optimized stream), and MessagePack (compact binary encoding with typed markers)."
+                  aria-label="Learn about Serialization Formats">?</button>
+              </label>
+              <div class="checkbox-group" id="formats-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" name="format" value="json" checked id="chk-json">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">JSON (Baseline)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="format" value="json_gzip" checked id="chk-gzip">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">JSON + GZIP</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="format" value="messagepack" checked id="chk-mp">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">MessagePack (Binary)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Iterations, Warmup & Concurrency -->
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="iterations-count" class="form-label">
+                  <span>Measured Reps</span>
+                  <button type="button" class="info-help-btn" data-info-title="Measured Reps"
+                    data-info-text="The number of timed execution repetitions performed for each serialization and deserialization cycle. Repetitions are averaged to eliminate CPU scheduler jitter and measure stable latency."
+                    aria-label="Learn about Measured Reps">?</button>
+                </label>
+                <input type="number" id="iterations-count" class="form-input" min="1" max="50" value="3">
+              </div>
+              <div class="form-group col">
+                <label for="warmup-count" class="form-label">
+                  <span>Warmup Runs</span>
+                  <button type="button" class="info-help-btn" data-info-title="Warmup Runs"
+                    data-info-text="The number of unmeasured pre-benchmark iterations run prior to recording metrics. Warmup primes Python interpreter bytecode caches, OS memory pages, and branch predictors to eliminate cold-start distortions."
+                    aria-label="Learn about Warmup Runs">?</button>
+                </label>
+                <input type="number" id="warmup-count" class="form-input" min="0" max="10" value="1">
+              </div>
+              <div class="form-group col">
+                <label for="workers-count" class="form-label">
+                  <span>Parallel Workers</span>
+                  <button type="button" class="info-help-btn" data-info-title="Parallel Workers"
+                    data-info-text="Number of concurrent worker threads used to benchmark matrix cells in parallel, dramatically accelerating high nested and large data workloads."
+                    aria-label="Learn about Parallel Workers">?</button>
+                </label>
+                <input type="number" id="workers-count" class="form-input" min="1" max="16" value="4">
+              </div>
+            </div>
+
+            <!-- Action Buttons: 1 Run Button + Stop Button -->
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="btn-run-benchmark">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 3l14 9-14 9V3z" />
+                </svg>
+                <span>Run Benchmark</span>
+              </button>
+              <button type="button" class="btn btn-danger hidden" id="btn-stop-benchmark">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
+                </svg>
+                <span>Stop Benchmark</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Right Column: Conditional Views -->
+        <section class="dashboard-content">
+
+          <!-- VIEW 1: LOADING & LIVE MONITOR VIEW -->
+          <div id="loading-view" class="view-panel">
+
+            <!-- Idle State: Prompt to run -->
+            <div id="idle-prompt" class="idle-prompt">
+              <div class="idle-icon-wrap">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <h3 class="idle-heading">Awaiting Benchmark Execution</h3>
+              <p class="idle-subtext">Configure workload and network parameters on the left and select <strong>Run
+                  Benchmark</strong>. Live metrics, estimated completion time, and real execution telemetry will display
+                here.</p>
+            </div>
+
+            <!-- Active Running State: Progress & Estimated Time -->
+            <div id="active-loader" class="loader-graphic hidden">
+              <div class="spinner-wrap">
+                <div class="spinner"></div>
+              </div>
+              <h3 id="loader-status-text" class="loader-heading">Executing Benchmark Suite</h3>
+              <p id="loader-sub-text" class="loader-subtext">Processing experimental matrix cells</p>
+
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+              </div>
+
+              <!-- Meta Row: Elapsed Time + Estimated Remaining Time (ETA) -->
+              <div class="loader-meta-row">
+                <span id="current-cell-badge" class="meta-tag">Cell 0 / 0</span>
+                <span id="progress-pct-display" class="meta-tag bold">0%</span>
+                <span id="elapsed-timer" class="meta-tag">Elapsed: 0.0s</span>
+                <span id="eta-timer" class="meta-tag eta">ETA: Calculating...</span>
+              </div>
+
+              <!-- Stop Button inside Loader -->
+              <div class="loader-action-row">
+                <button type="button" class="btn btn-danger btn-sm" id="btn-stop-loader">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                  </svg>
+                  <span>Stop Execution</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Execution Stopped Banner -->
+            <div id="stopped-banner" class="banner-notice banner-warning hidden">
+              <div class="banner-content">
+                <div class="banner-title">Benchmark Stopped by User</div>
+                <div class="banner-desc" id="stopped-desc">Execution was halted. You can adjust parameters and start a
+                  new benchmark run.</div>
+              </div>
+              <button type="button" class="btn btn-xs btn-outline" id="btn-dismiss-stopped">Dismiss</button>
+            </div>
+
+            <!-- Failed Error State -->
+            <div id="error-banner" class="banner-notice banner-danger hidden">
+              <div class="banner-content">
+                <div class="banner-title">Benchmark Execution Failed</div>
+                <div id="error-message" class="banner-desc">Error details</div>
+              </div>
+              <button type="button" class="btn btn-xs btn-outline" id="btn-retry">Dismiss</button>
+            </div>
+
+            <!-- Live Streaming Console -->
+            <div class="terminal-card" id="terminal-card">
+              <div class="terminal-header">
+                <div class="terminal-title">Execution Console</div>
+                <div class="terminal-controls">
+                  <label class="terminal-autoscroll-label">
+                    <input type="checkbox" id="chk-autoscroll" checked>
+                    <span>Auto-scroll</span>
+                  </label>
+                  <button type="button" class="btn-terminal-clear" id="btn-clear-logs">Clear</button>
+                </div>
+              </div>
+              <div class="terminal-body" id="live-terminal-body">
+                <div class="terminal-log-line"><span class="log-time">[SYSTEM]</span><span class="log-system">Engine
+                    initialized. Ready for benchmark execution.</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW 2: ACCURATE RESULTS VIEW -->
+          <div id="results-view" class="view-panel hidden">
+
+            <!-- Top Action Banner with Export Button -->
+            <div class="results-top-banner">
+              <div class="results-banner-left">
+                <div>
+                  <div class="results-banner-title">Benchmark Complete</div>
+                  <div class="results-banner-sub" id="banner-meta">Execution validated with real measurements</div>
+                </div>
+              </div>
+              <div class="results-banner-actions">
+                <div class="export-dropdown-wrapper" id="export-dropdown-wrapper">
+                  <button type="button" class="btn btn-primary export-dropdown-toggle" id="btn-export-dropdown-toggle"
+                    aria-expanded="false" aria-haspopup="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Export Results</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round" class="dropdown-chevron-icon">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div class="export-dropdown-menu hidden" id="export-dropdown-menu" role="menu">
+                    <a href="/api/results/export" class="export-dropdown-item" id="export-opt-zip" role="menuitem"
+                      download>
+                      <div class="export-item-icon zip-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path
+                            d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z">
+                          </path>
+                          <path d="m3.3 7 8.7 5 8.7-5"></path>
+                          <path d="M12 22V12"></path>
+                        </svg>
+                      </div>
+                      <div class="export-item-content">
+                        <span class="export-item-title">Export as ZIP</span>
+                        <span class="export-item-desc">Raw CSVs, Markdown tables, plots &amp; config</span>
+                      </div>
+                    </a>
+                    <div class="export-dropdown-divider"></div>
+                    <a href="/api/results/export/pdf" class="export-dropdown-item" id="export-opt-pdf" role="menuitem"
+                      download>
+                      <div class="export-item-icon pdf-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                          <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                      </div>
+                      <div class="export-item-content">
+                        <span class="export-item-title">Export as PDF</span>
+                        <span class="export-item-desc">Whole report with executive summary, tables &amp; charts</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <button type="button" id="btn-export-results" style="display:none;" aria-hidden="true"></button>
+                <button type="button" class="btn btn-outline" id="btn-new-run">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  <span>New Run</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Summary Stats Grid -->
+            <div class="card status-card">
+              <div class="summary-stats-grid" id="summary-stats">
+                <div class="stat-box">
+                  <span class="stat-label">
+                    <span>Execution Time</span>
+                    <button type="button" class="info-help-btn" data-info-title="Execution Time"
+                      data-info-text="Total wall-clock duration elapsed across all warmup iterations, benchmark repetitions, and metric aggregation operations."
+                      aria-label="Learn about Execution Time">?</button>
+                  </span>
+                  <span class="stat-value" id="stat-time">0.0s</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">
+                    <span>Valid Runs</span>
+                    <button type="button" class="info-help-btn" data-info-title="Valid Runs"
+                      data-info-text="The proportion of benchmark iterations that executed successfully and passed 100% round-trip byte and structure validation tests."
+                      aria-label="Learn about Valid Runs">?</button>
+                  </span>
+                  <span class="stat-value" id="stat-valid">0 / 0</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">
+                    <span>Cells Executed</span>
+                    <button type="button" class="info-help-btn" data-info-title="Cells Executed"
+                      data-info-text="Total permutation matrix cells evaluated across selected workloads, network conditions, serialization formats, and repetitions."
+                      aria-label="Learn about Cells Executed">?</button>
+                  </span>
+                  <span class="stat-value" id="stat-cells">0</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">
+                    <span>Recommended Format</span>
+                    <button type="button" class="info-help-btn" data-info-title="Recommended Format"
+                      data-info-text="The optimal serialization format determined by the decision framework for the current payload size and network bandwidth conditions."
+                      aria-label="Learn about Recommended Format">?</button>
+                  </span>
+                  <span class="stat-value highlight" id="stat-recommendation">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Decision Model Framework Card -->
+            <div class="card decision-card" id="decision-card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <span>3-Zone Decision Framework Recommendations</span>
+                  <button type="button" class="info-help-btn" data-info-title="3-Zone Decision Framework"
+                    data-info-text="Analytical decision model categorizing outcomes into Zone 1 (Gain &lt; 5%, stay with JSON), Zone 2 (5%–20%, context-dependent trade-off), and Zone 3 (Gain &ge; 20%, recommended switch to binary or compression)."
+                    aria-label="Learn about 3-Zone Decision Framework">?</button>
+                </h2>
+                <span class="badge-chip">Decision Model</span>
+              </div>
+              <div id="decision-items-container" class="decision-items">
+                <!-- Populated dynamically with recommendations -->
+              </div>
+            </div>
+
+            <!-- Charts Grid (Color used purposefully for format comparison) -->
+            <div class="charts-grid">
+              <div class="card chart-card">
+                <div class="card-header">
+                  <div>
+                    <h3 class="chart-title">
+                      <span>Latency Breakdown by Format (ms)</span>
+                      <button type="button" class="info-help-btn" data-info-title="Latency Breakdown"
+                        data-info-text="Decomposes total end-to-end latency into Serialization CPU time (T_ser), simulated Network wire transit time (T_net), and Deserialization CPU time (T_deser)."
+                        aria-label="Learn about Latency Breakdown">?</button>
+                    </h3>
+                    <p class="chart-subtitle">Serialization (T_ser) + Network (T_net) + Deserialization (T_deser)</p>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="chart-latency"></canvas>
+                </div>
+              </div>
+
+              <div class="card chart-card">
+                <div class="card-header">
+                  <div>
+                    <h3 class="chart-title">
+                      <span>Wire Payload Size vs Original (Bytes)</span>
+                      <button type="button" class="info-help-btn" data-info-title="Wire Payload Size"
+                        data-info-text="Physical byte size of the payload transmitted over the wire after serialization and optional compression, compared against baseline uncompressed JSON."
+                        aria-label="Learn about Wire Payload Size">?</button>
+                    </h3>
+                    <p class="chart-subtitle">Serialized network payload versus uncompressed JSON</p>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="chart-payload"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Computational Trade-Off Chart -->
+            <div class="card chart-card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <div>
+                  <h3 class="chart-title">
+                    <span>Computational Trade-Off: CPU Processing vs Network Transfer Time</span>
+                    <button type="button" class="info-help-btn" data-info-title="Computational Trade-Off"
+                      data-info-text="Evaluates whether the CPU time spent on compression or binary encoding is offset by time saved during network transport. If network savings exceed CPU penalty, the alternative format wins."
+                      aria-label="Learn about Computational Trade-Off">?</button>
+                  </h3>
+                  <p class="chart-subtitle">Evaluates if CPU overhead is justified by network time savings</p>
+                </div>
+              </div>
+              <div class="chart-container" style="height: 250px;">
+                <canvas id="chart-tradeoff"></canvas>
+              </div>
+            </div>
+
+            <!-- Structured Tables Viewer (CSV Data) -->
+            <div class="card tables-viewer-card" id="tables-viewer-card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">
+                    <span>Structured Benchmark Tables (CSV Data)</span>
+                    <button type="button" class="info-help-btn" data-info-title="Structured Benchmark Tables"
+                      data-info-text="Standardized research data tables (Tables 1–7) generated from empirical test records, formatted for academic publication and CSV analysis."
+                      aria-label="Learn about Structured Tables">?</button>
+                  </h2>
+                  <p class="card-subtitle">Inspect generated benchmark tables directly or download individual CSVs.</p>
+                </div>
+                <div class="table-header-actions">
+                  <a id="btn-download-active-table" href="#" class="btn btn-sm btn-outline">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download Active CSV</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Table Navigation Tabs -->
+              <div class="table-tabs-nav" id="table-tabs-nav">
+                <button type="button" class="tab-btn active" data-table="table1">Table 1: Config</button>
+                <button type="button" class="tab-btn" data-table="table2">Table 2: Encoding/Decoding</button>
+                <button type="button" class="tab-btn" data-table="table3">Table 3: Payload & Network</button>
+                <button type="button" class="tab-btn" data-table="table4">Table 4: E2E Gain</button>
+                <button type="button" class="tab-btn" data-table="table5">Table 5: Workload Comp</button>
+                <button type="button" class="tab-btn" data-table="table6">Table 6: Break-Even</button>
+                <button type="button" class="tab-btn" data-table="table7">Table 7: Decision Model</button>
+                <button type="button" class="tab-btn" data-table="records">Raw Records</button>
+              </div>
+
+              <!-- Table Toolbar -->
+              <div class="table-toolbar">
+                <div class="table-info">
+                  <span class="table-active-title" id="table-active-title">Table 1: Experimental Configuration & Dataset
+                    Summary</span>
+                  <span class="table-active-count" id="table-active-count">0 rows</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <div class="table-view-toggle">
+                    <button type="button" class="view-toggle-btn active" id="btn-toggle-csv">CSV Grid</button>
+                    <button type="button" class="view-toggle-btn" id="btn-toggle-md">Markdown</button>
+                  </div>
+                  <div class="table-filter-box" id="table-filter-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="table-search-input" class="table-search-input"
+                      placeholder="Filter rows in table...">
+                  </div>
+                  <button type="button" class="btn btn-xs btn-outline hidden" id="btn-copy-table-md">Copy MD</button>
+                </div>
+              </div>
+
+              <!-- Scrollable Table Container -->
+              <div class="table-display-container" id="table-display-container">
+                <div class="table-placeholder">Click a table tab above to display data.</div>
+              </div>
+            </div>
+
+            <!-- Research Plots Gallery -->
+            <div class="card artifacts-card" id="artifacts-card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">
+                    <span>Publication Charts (10 Generated Plots)</span>
+                    <button type="button" class="info-help-btn" data-info-title="Publication Charts"
+                      data-info-text="Vector and high-resolution publication-quality plots illustrating throughput scaling, latency distributions, break-even contours, and resource consumption."
+                      aria-label="Learn about Publication Charts">?</button>
+                  </h2>
+                  <p class="card-subtitle">Generated Matplotlib charts saved in <code>plots/</code> directory.</p>
+                </div>
+                <button class="btn btn-sm btn-outline" id="btn-generate-reports">Regenerate Plots & Tables</button>
+              </div>
+
+              <div class="category-filter-row" id="plots-category-filters" style="padding: 10px 18px 0 18px;">
+                <button type="button" class="category-filter-btn active" data-category="all">All Charts (10)</button>
+                <button type="button" class="category-filter-btn" data-category="Payload">Payload</button>
+                <button type="button" class="category-filter-btn" data-category="Performance">Performance</button>
+                <button type="button" class="category-filter-btn" data-category="Break-Even">Break-Even</button>
+                <button type="button" class="category-filter-btn" data-category="Resources">Resources</button>
+                <button type="button" class="category-filter-btn" data-category="Decision Model">Decision Model</button>
+              </div>
+
+              <div class="plots-gallery-grid" id="plots-preview-container">
+                <!-- Dynamically populated with plot cards -->
+              </div>
+            </div>
+
+            <!-- Collapsible Execution Logs Drawer -->
+            <details class="card collapsible-logs-card" id="completed-logs-drawer">
+              <summary class="collapsible-logs-summary">
+                <span>View Full Benchmark Execution Logs</span>
+                <span class="badge-chip" id="completed-logs-count">0 logs</span>
+              </summary>
+              <div class="terminal-body" id="completed-terminal-body"
+                style="border-top: 1px solid var(--border-color); max-height: 300px;">
+                <!-- Populated with full run logs -->
+              </div>
+            </details>
+
+          </div>
+        </section>
+      </main>
+    </div>
+    <!-- END SECTION 1: BENCHMARK SUITE -->
+
+    <!-- SECTION 2: INTERACTIVE DECISION MATRIX & BREAK-EVEN CALCULATOR -->
+    <div id="section-calculator" class="main-view-section hidden">
+      <div class="calculator-grid">
+        <!-- Left: Sliders & Controls -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Interactive Simulation Parameters</h2>
+              <p class="card-subtitle">Adjust payload size and network bandwidth to observe live decision thresholds.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Slider 1: Payload Size -->
+            <div class="slider-group">
+              <div class="slider-header-row">
+                <label for="calc-payload-slider" class="slider-title">
+                  <span>Target Payload Size</span>
+                  <button type="button" class="info-help-btn" data-info-title="Target Payload Size"
+                    data-info-text="Uncompressed object data volume used to evaluate serialization performance across varying scale factors."
+                    aria-label="Learn about Target Payload Size">?</button>
+                </label>
+                <span class="slider-readout" id="calc-payload-readout">250.0 KB (0.24 MB)</span>
+              </div>
+              <input type="range" id="calc-payload-slider" class="slider-input" min="0" max="1000" step="1" value="466">
+              <div class="preset-pills-row" id="payload-preset-pills">
+                <button type="button" class="preset-pill-btn" data-payload="10">10 KB</button>
+                <button type="button" class="preset-pill-btn" data-payload="100">100 KB</button>
+                <button type="button" class="preset-pill-btn active" data-payload="250">250 KB</button>
+                <button type="button" class="preset-pill-btn" data-payload="500">500 KB</button>
+                <button type="button" class="preset-pill-btn" data-payload="1000">1 MB</button>
+                <button type="button" class="preset-pill-btn" data-payload="5000">5 MB</button>
+                <button type="button" class="preset-pill-btn" data-payload="10000">10 MB</button>
+              </div>
+            </div>
+
+            <!-- Slider 2: Bandwidth -->
+            <div class="slider-group">
+              <div class="slider-header-row">
+                <label for="calc-bandwidth-slider" class="slider-title">
+                  <span>Simulated Network Bandwidth</span>
+                  <button type="button" class="info-help-btn" data-info-title="Simulated Network Bandwidth"
+                    data-info-text="Network throughput capacity in Mbps used to compute wire transmission latency (T_net = Payload Size / Bandwidth)."
+                    aria-label="Learn about Network Bandwidth">?</button>
+                </label>
+                <span class="slider-readout" id="calc-bandwidth-readout">50.0 Mbps</span>
+              </div>
+              <input type="range" id="calc-bandwidth-slider" class="slider-input" min="0" max="1000" step="1"
+                value="566">
+              <div class="preset-pills-row" id="bw-preset-pills">
+                <button type="button" class="preset-pill-btn" data-bw="1">1 Mbps (Cellular)</button>
+                <button type="button" class="preset-pill-btn" data-bw="10">10 Mbps (3G / DSL)</button>
+                <button type="button" class="preset-pill-btn active" data-bw="50">50 Mbps (4G / WiFi)</button>
+                <button type="button" class="preset-pill-btn" data-bw="100">100 Mbps (Broadband)</button>
+                <button type="button" class="preset-pill-btn" data-bw="1000">1 Gbps (Datacenter)</button>
+              </div>
+            </div>
+
+            <!-- Control: Data Structure -->
+            <div class="form-group">
+              <label for="calc-structure-select" class="form-label">
+                <span>Data Structure Type</span>
+                <button type="button" class="info-help-btn" data-info-title="Data Structure Type"
+                  data-info-text="Structural organization of data (flat dictionaries, nested trees, text-heavy payloads, or numeric lists) influencing serializability and compressibility."
+                  aria-label="Learn about Data Structure Type">?</button>
+              </label>
+              <select id="calc-structure-select" class="form-select">
+                <option value="nested" selected>Nested Hierarchy (Balanced)</option>
+                <option value="flat">Flat Scalar (Low nesting)</option>
+                <option value="text">Text-Heavy (High redundancy)</option>
+                <option value="numeric">Numeric Array (Binary pack friendly)</option>
+              </select>
+            </div>
+
+            <!-- Control: Injected RTT Latency -->
+            <div class="form-group">
+              <label for="calc-rtt-select" class="form-label">
+                <span>Network Base Latency (RTT)</span>
+                <button type="button" class="info-help-btn" data-info-title="Network Base Latency (RTT)"
+                  data-info-text="Round-trip propagation delay added by physical network distance, routers, and transport handshakes."
+                  aria-label="Learn about Network RTT">?</button>
+              </label>
+              <select id="calc-rtt-select" class="form-select">
+                <option value="1">1 ms (Local LAN / Same Rack)</option>
+                <option value="15" selected>15 ms (Metro / Regional Datacenter)</option>
+                <option value="50">50 ms (WAN / Cross-Country)</option>
+                <option value="150">150 ms (Intercontinental / Cellular)</option>
+              </select>
+            </div>
+
+            <div class="calc-rationale-box">
+              <strong>Theoretical Model Note:</strong> Decision zones follow the 3-Zone methodology from Section 21 of
+              the research design: Zone 1 (Gain &lt; 5%, Stay with JSON), Zone 2 (5% &le; Gain &lt; 20%,
+              Context-Dependent), Zone 3 (Gain &ge; 20%, Recommended Switch).
+            </div>
+          </div>
+        </section>
+
+        <!-- Right: Live Analytical Output -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Live Decision Framework Recommendation</h2>
+              <p class="card-subtitle">Empirical predictions updated in real time as parameters slide.</p>
+            </div>
+            <span id="calc-regime-badge" class="calc-regime-badge">Network-Bound</span>
+          </div>
+
+          <div class="card-body">
+            <!-- Top Recommendation Banner -->
+            <div class="calc-summary-banner">
+              <div class="calc-summary-left">
+                <div id="calc-zone-badge" class="calc-zone-badge zone-switch">ZONE 3: SWITCH</div>
+                <div class="calc-rec-name" id="calc-rec-format">MessagePack (Binary)</div>
+                <div class="calc-meta-badges">
+                  <span class="calc-gain-badge" id="calc-gain-display">+32.4% Relative Gain</span>
+                  <span style="font-size: 12px; color: var(--text-muted);" id="calc-best-desc">over baseline JSON</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Latency Breakdown Comparison Bars -->
+            <div class="calc-bars-card">
+              <div class="form-label" style="margin-bottom: 6px;">End-to-End Latency Breakdown (T_proc + T_net)</div>
+              <div class="calc-bar-group">
+                <!-- JSON -->
+                <div class="calc-bar-item">
+                  <div class="calc-bar-label-row">
+                    <span class="calc-bar-name">JSON (Baseline)</span>
+                    <span class="calc-bar-value" id="calc-val-json">45.2 ms</span>
+                  </div>
+                  <div class="calc-bar-track">
+                    <div class="calc-bar-proc" id="bar-proc-json" style="width: 15%;">proc</div>
+                    <div class="calc-bar-net format-json" id="bar-net-json" style="width: 85%;">net</div>
+                  </div>
+                </div>
+
+                <!-- JSON + GZIP -->
+                <div class="calc-bar-item">
+                  <div class="calc-bar-label-row">
+                    <span class="calc-bar-name">JSON + GZIP</span>
+                    <span class="calc-bar-value" id="calc-val-gzip">34.8 ms</span>
+                  </div>
+                  <div class="calc-bar-track">
+                    <div class="calc-bar-proc" id="bar-proc-gzip" style="width: 30%;">proc</div>
+                    <div class="calc-bar-net format-gzip" id="bar-net-gzip" style="width: 70%;">net</div>
+                  </div>
+                </div>
+
+                <!-- MessagePack -->
+                <div class="calc-bar-item">
+                  <div class="calc-bar-label-row">
+                    <span class="calc-bar-name">MessagePack (Binary)</span>
+                    <span class="calc-bar-value" id="calc-val-mp">30.5 ms</span>
+                  </div>
+                  <div class="calc-bar-track">
+                    <div class="calc-bar-proc" id="bar-proc-mp" style="width: 18%;">proc</div>
+                    <div class="calc-bar-net format-mp" id="bar-net-mp" style="width: 82%;">net</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="calc-bar-legend">
+                <span><span class="legend-swatch" style="background: #94a3b8;"></span>Processing (T_ser +
+                  T_deser)</span>
+                <span><span class="legend-swatch" style="background: var(--chart-json);"></span>JSON Wire</span>
+                <span><span class="legend-swatch" style="background: var(--chart-gzip);"></span>GZIP Wire</span>
+                <span><span class="legend-swatch" style="background: var(--chart-msgpack);"></span>MessagePack
+                  Wire</span>
+              </div>
+            </div>
+
+            <!-- Format Metrics Table -->
+            <div class="calc-table-wrap">
+              <table class="calc-metrics-table">
+                <thead>
+                  <tr>
+                    <th>Format</th>
+                    <th>Wire Size</th>
+                    <th>Reduction</th>
+                    <th>CPU Proc</th>
+                    <th>Net Time</th>
+                    <th>Total E2E</th>
+                    <th>Gain vs JSON</th>
+                  </tr>
+                </thead>
+                <tbody id="calc-metrics-tbody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Analytical Break-Even Bandwidth Cards -->
+            <div class="calc-breakeven-grid">
+              <div class="calc-be-card">
+                <div class="calc-be-label">
+                  <span>B_BE (JSON vs MessagePack)</span>
+                  <button type="button" class="info-help-btn" data-info-title="Break-Even Bandwidth (MessagePack)"
+                    data-info-text="The critical network speed threshold where binary encoding CPU overhead matches wire transfer savings. Below this bandwidth, MessagePack is faster than JSON."
+                    aria-label="Learn about Break-Even Bandwidth">?</button>
+                </div>
+                <div class="calc-be-val" id="calc-bbe-mp">142.5 Mbps</div>
+                <div class="calc-be-sub">Below this bandwidth, MessagePack is faster than JSON.</div>
+              </div>
+              <div class="calc-be-card">
+                <div class="calc-be-label">
+                  <span>B_BE (JSON vs GZIP)</span>
+                  <button type="button" class="info-help-btn" data-info-title="Break-Even Bandwidth (GZIP)"
+                    data-info-text="The critical network speed threshold where GZIP compression CPU overhead matches wire transfer savings. Below this bandwidth, GZIP's size reduction outweighs its compression cost."
+                    aria-label="Learn about Break-Even Bandwidth">?</button>
+                </div>
+                <div class="calc-be-val" id="calc-bbe-gzip">48.2 Mbps</div>
+                <div class="calc-be-sub">Below this bandwidth, GZIP's size savings outweigh compression CPU cost.</div>
+              </div>
+            </div>
+
+            <!-- Recommendation Narrative -->
+            <div class="calc-rationale-box" id="calc-rationale-text">
+              Evaluating conditions...
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <!-- END SECTION 2: CALCULATOR -->
+
+    <!-- SECTION 3: RESEARCH PAPER -->
+    <div id="section-paper" class="main-view-section hidden">
+      <div class="card paper-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Research Paper Manuscript</h2>
+            <p class="card-subtitle">Empirical study pre-print publication and theoretical evaluation artifacts</p>
+          </div>
+          <span class="badge-chip">Pre-Print Publication</span>
+        </div>
+
+        <div class="card-body paper-card-body">
+          <div class="paper-meta-banner">
+            <div class="paper-icon-wrap">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div class="paper-headline-info">
+              <h3 class="paper-title">When Is Binary Serialization Worth the Trade-Off?</h3>
+              <p class="paper-subtitle-text">An End-to-End Workload- and Network-Aware Empirical Evaluation of JSON,
+                Compressed JSON, and MessagePack Serialization</p>
+              <div class="paper-tags-row">
+                <span class="paper-tag">ACM / IEEE Systems Track</span>
+                <span class="paper-tag">28 Pages</span>
+                <span class="paper-tag">10 Canonical Workloads</span>
+                <span class="paper-tag">Break-Even Modeling</span>
+                <span class="paper-tag">PDF</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="paper-abstract-box">
+            <h4 class="paper-section-title">Abstract & Key Contributions</h4>
+            <p class="paper-abstract-text">
+              In modern distributed systems, web architectures, and microservice APIs, data interchange serialization
+              format is often chosen based on intuition rather than empirical trade-off analysis. While text JSON offers
+              ubiquitous compatibility and MessagePack provides compact binary representations, total end-to-end latency
+              is governed by the coupled dynamics of serialization CPU time (T_ser), deserialization time (T_deser), and
+              simulated physical network transit time (T_net = Payload / Bandwidth). This research introduces a
+              repeatable, zero-bias benchmarking methodology and presents an analytical 3-Zone Decision Framework along
+              with a closed-form break-even bandwidth equation (B_BE). Our empirical evaluations across 10 diverse
+              workload payloads and 3 network bandwidth tiers demonstrate precisely under which operational regimes
+              binary serialization or compression provides statistically significant wall-clock speedups.
+            </p>
+          </div>
+
+          <div class="paper-action-area">
+            <a href="https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9I0J-mock-paper/view?usp=sharing" target="_blank"
+              rel="noopener noreferrer" class="btn btn-primary btn-lg" id="btn-open-drive-paper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z" />
+              </svg>
+              <span>Open Research Paper in Google Drive</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-left: 6px;">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+            <p class="paper-action-hint">Click the button above to view and download the full pre-print PDF manuscript
+              and supplementary proofs on Google Drive.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END SECTION 3: RESEARCH PAPER -->
+
+    <!-- SECTION 4: CONTRIBUTORS -->
+    <div id="section-contributors" class="main-view-section hidden">
+      <div class="card contributors-container-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Research Contributors & Authors</h2>
+            <p class="card-subtitle">Core research and engineering team behind the Serialization Benchmark study</p>
+          </div>
+          <span class="badge-chip">4 Authors</span>
+        </div>
+
+        <div class="card-body">
+          <div class="contributors-grid">
+
+            <!-- Contributor 1 -->
+            <div class="contributor-card">
+              <div class="contributor-avatar-wrap">
+                <svg width="84" height="84" viewBox="0 0 84 84" class="contributor-avatar" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="42" cy="42" r="42" fill="#f8fafc" />
+                  <circle cx="42" cy="33" r="15" fill="#e2e8f0" />
+                  <path d="M16 68C16 54.7452 27.6409 44 42 44C56.3591 44 68 54.7452 68 68" fill="#e2e8f0" />
+                  <circle cx="42" cy="42" r="41" stroke="#cbd5e1" stroke-width="2" />
+                </svg>
+              </div>
+              <h3 class="contributor-name">Alex Chen</h3>
+              <p class="contributor-headline">Lead Systems Researcher & Benchmark Architect</p>
+              <div class="contributor-contribution-box">
+                <span class="contributor-contribution-label">Contributed On</span>
+                <p class="contributor-contribution-text">Benchmark orchestration harness, high-resolution wall-clock
+                  timer instrumentation, statistical aggregation, and experimental reproducibility pipeline.</p>
+              </div>
+              <div class="contributor-social-links">
+                <a href="https://www.linkedin.com/in/alex-chen-research" target="_blank" rel="noopener noreferrer"
+                  class="social-icon-btn linkedin" aria-label="Alex Chen LinkedIn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
+                </a>
+                <a href="mailto:alex.chen@research-benchmark.org" class="social-icon-btn email"
+                  aria-label="Alex Chen Email">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Contributor 2 -->
+            <div class="contributor-card">
+              <div class="contributor-avatar-wrap">
+                <svg width="84" height="84" viewBox="0 0 84 84" class="contributor-avatar" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="42" cy="42" r="42" fill="#f8fafc" />
+                  <circle cx="42" cy="33" r="15" fill="#e2e8f0" />
+                  <path d="M16 68C16 54.7452 27.6409 44 42 44C56.3591 44 68 54.7452 68 68" fill="#e2e8f0" />
+                  <circle cx="42" cy="42" r="41" stroke="#cbd5e1" stroke-width="2" />
+                </svg>
+              </div>
+              <h3 class="contributor-name">Dr. Elena Rostova</h3>
+              <p class="contributor-headline">Network Systems Architect & Protocol Specialist</p>
+              <div class="contributor-contribution-box">
+                <span class="contributor-contribution-label">Contributed On</span>
+                <p class="contributor-contribution-text">Network profile emulation (FAST, MODERATE, SLOW), RTT latency
+                  mathematical models, and transport layer socket transmission benchmarking.</p>
+              </div>
+              <div class="contributor-social-links">
+                <a href="https://www.linkedin.com/in/elena-rostova-network" target="_blank" rel="noopener noreferrer"
+                  class="social-icon-btn linkedin" aria-label="Elena Rostova LinkedIn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
+                </a>
+                <a href="mailto:e.rostova@research-benchmark.org" class="social-icon-btn email"
+                  aria-label="Elena Rostova Email">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Contributor 3 -->
+            <div class="contributor-card">
+              <div class="contributor-avatar-wrap">
+                <svg width="84" height="84" viewBox="0 0 84 84" class="contributor-avatar" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="42" cy="42" r="42" fill="#f8fafc" />
+                  <circle cx="42" cy="33" r="15" fill="#e2e8f0" />
+                  <path d="M16 68C16 54.7452 27.6409 44 42 44C56.3591 44 68 54.7452 68 68" fill="#e2e8f0" />
+                  <circle cx="42" cy="42" r="41" stroke="#cbd5e1" stroke-width="2" />
+                </svg>
+              </div>
+              <h3 class="contributor-name">Marcus Vance</h3>
+              <p class="contributor-headline">Data Science & Serialization Algorithms Researcher</p>
+              <div class="contributor-contribution-box">
+                <span class="contributor-contribution-label">Contributed On</span>
+                <p class="contributor-contribution-text">MessagePack binary serializer integration, GZIP compression
+                  trade-off analysis, break-even bandwidth proofs, and data integrity verification.</p>
+              </div>
+              <div class="contributor-social-links">
+                <a href="https://www.linkedin.com/in/marcus-vance-data" target="_blank" rel="noopener noreferrer"
+                  class="social-icon-btn linkedin" aria-label="Marcus Vance LinkedIn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
+                </a>
+                <a href="mailto:m.vance@research-benchmark.org" class="social-icon-btn email"
+                  aria-label="Marcus Vance Email">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Contributor 4 -->
+            <div class="contributor-card">
+              <div class="contributor-avatar-wrap">
+                <svg width="84" height="84" viewBox="0 0 84 84" class="contributor-avatar" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="42" cy="42" r="42" fill="#f8fafc" />
+                  <circle cx="42" cy="33" r="15" fill="#e2e8f0" />
+                  <path d="M16 68C16 54.7452 27.6409 44 42 44C56.3591 44 68 54.7452 68 68" fill="#e2e8f0" />
+                  <circle cx="42" cy="42" r="41" stroke="#cbd5e1" stroke-width="2" />
+                </svg>
+              </div>
+              <h3 class="contributor-name">Priya Sharma</h3>
+              <p class="contributor-headline">Full-Stack Analytics Lead & UI Systems Engineer</p>
+              <div class="contributor-contribution-box">
+                <span class="contributor-contribution-label">Contributed On</span>
+                <p class="contributor-contribution-text">Interactive research suite dashboard, 3-zone decision framework
+                  visualization, dynamic break-even simulator, and publication chart generators.</p>
+              </div>
+              <div class="contributor-social-links">
+                <a href="https://www.linkedin.com/in/priya-sharma-systems" target="_blank" rel="noopener noreferrer"
+                  class="social-icon-btn linkedin" aria-label="Priya Sharma LinkedIn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
+                </a>
+                <a href="mailto:priya.sharma@research-benchmark.org" class="social-icon-btn email"
+                  aria-label="Priya Sharma Email">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END SECTION 4: CONTRIBUTORS -->
+
+    <!-- Footer -->
+    <footer class="app-footer"
+      style="width: 100%; margin-top: 36px; padding-top: 16px; padding-bottom: 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; text-align: center;">
+      <p class="app-footer-text"
+        style="margin: 0; text-align: center; font-size: 11px; font-weight: 500; color: #64748b; letter-spacing: 0.3px; width: 100%;">
+        Built by Prithvi Kharje &amp; Viraj Ravani</p>
+    </footer>
+
+  </div>
+
+  <!-- MODAL 1: Dataset Inspector Modal (For viewing real dataset of 10 workloads) -->
+  <div class="modal-backdrop hidden" id="dataset-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 class="modal-title" id="modal-dataset-name">Workload Dataset Inspector</h3>
+          <p class="modal-subtitle" id="modal-dataset-subtitle">Inspect synthetic payload structure and real format
+            sizes</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-dataset-modal" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Switcher Bar for all 10 workloads -->
+      <div class="modal-workload-selector" id="modal-workload-selector">
+        <!-- 10 workload pill buttons -->
+      </div>
+
+      <!-- Workload Metadata Stats -->
+      <div class="modal-meta-grid" id="modal-meta-grid">
+        <div class="modal-meta-item">
+          <span class="meta-label">Data Structure</span>
+          <span class="meta-val" id="modal-stat-structure">-</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="meta-label">Target Size</span>
+          <span class="meta-val" id="modal-stat-size">-</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="meta-label">JSON Wire Bytes</span>
+          <span class="meta-val" id="modal-stat-json-bytes">-</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="meta-label">GZIP Compressed</span>
+          <span class="meta-val" id="modal-stat-gzip-bytes">-</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="meta-label">MessagePack Binary</span>
+          <span class="meta-val" id="modal-stat-mp-bytes">-</span>
+        </div>
+      </div>
+
+      <!-- Dataset Content Viewer -->
+      <div class="modal-body">
+        <div class="code-preview-header">
+          <span>Payload JSON Preview (<span id="modal-keys-count">0</span> items)</span>
+          <button type="button" class="btn btn-xs btn-outline" id="btn-copy-dataset">Copy JSON</button>
+        </div>
+        <pre class="code-preview-content" id="modal-json-content">Loading workload dataset...</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: High-Resolution Plot Image Enlarge Modal -->
+  <div class="modal-backdrop hidden" id="plot-modal">
+    <div class="modal-container modal-image-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="plot-modal-title">Benchmark Plot</h3>
+        <button type="button" class="modal-close-btn" id="btn-close-plot-modal" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-image-body">
+        <img id="plot-modal-img" src="" alt="Benchmark Plot">
+      </div>
+      <div class="modal-image-footer">
+        <a id="btn-download-plot-img" href="#" target="_blank" class="btn btn-sm btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Download PNG</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Info Popover for Help Circles -->
+  <div id="info-popover" class="info-popover hidden" role="tooltip" aria-hidden="true">
+    <div class="info-popover-header">
+      <div class="info-popover-title-row">
+        <span class="info-popover-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </span>
+        <span class="info-popover-title" id="info-popover-title">Help Info</span>
+      </div>
+      <button type="button" class="info-popover-close" id="btn-close-popover" aria-label="Close information">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="info-popover-body" id="info-popover-body">
+      Information description
+    </div>
+    <div class="info-popover-arrow" id="info-popover-arrow"></div>
+  </div>
+
+  <script src="script.js?v=20261001_1240"></script>
+</body>
+
+</html>

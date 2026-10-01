@@ -1,0 +1,17 @@
+profiles:
+  FAST:
+    name: "Fast Local Network / LAN"
+    bandwidth_mbps: 1000.0
+    latency_ms: 1.0
+  MODERATE:
+    name: "Moderate Broadband"
+    bandwidth_mbps: 100.0
+    latency_ms: 15.0
+  SLOW:
+    name: "Slow Broadband / 4G Cellular"
+    bandwidth_mbps: 10.0
+    latency_ms: 50.0
+  VERY_SLOW:
+    name: "Restricted Mobile / 3G Network"
+    bandwidth_mbps: 1.0
+    latency_ms: 150.0

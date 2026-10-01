@@ -1,0 +1,39 @@
+# ============================================================
+# Sterilization Benchmark - Full Dependency List
+# Python 3.11+  (tested on Python 3.14.6)
+# ============================================================
+
+# --- Web Framework & API (Stage 5) ---
+fastapi>=0.100.0           # FastAPI server for HTTP endpoints
+uvicorn>=0.22.0            # ASGI server for FastAPI
+starlette>=1.0.0           # FastAPI dependency
+
+# --- HTTP Client (Stage 5) ---
+httpx>=0.24.0              # Async HTTP client for benchmark runner
+
+# --- Serialization Formats (Stage 2) ---
+msgpack>=1.0.5             # MessagePack binary serialization
+
+# --- System Monitoring (Stage 6) ---
+psutil>=5.9.0              # CPU and memory usage measurement
+
+# --- Numerical & Data Analysis (Stage 8) ---
+numpy>=1.24.0              # Array operations and numerical calculations
+pandas>=2.0.0              # Result tabulation and data processing
+scipy>=1.10.0              # Statistical analysis (mean, CI, effect size)
+
+# --- Visualization & Reporting (Stage 9) ---
+matplotlib>=3.7.0          # Plot generation for all benchmark charts
+reportlab>=5.0.0           # PDF research report compiler and publication engine
+
+
+# --- Configuration (Stage 1) ---
+pyyaml>=6.0                # YAML config file parsing (experiment.yaml etc.)
+
+# --- Testing (All Stages) ---
+pytest>=7.3.0              # Unit and integration test runner
+
+# --- Utilities ---
+requests>=2.28.0           # HTTP requests utility (network tests)
+rich>=13.0.0               # Rich terminal output for experiment runner
+tabulate>=0.9.0            # Table formatting for terminal output

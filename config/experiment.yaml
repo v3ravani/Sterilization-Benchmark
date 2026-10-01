@@ -1,0 +1,33 @@
+experiment:
+  name: "serialization_tradeoff_benchmark"
+  version: "1.0"
+  repetitions: 10
+  warmup_runs: 2
+
+workloads:
+  sizes:
+    small_kb: 10
+    medium_kb: 500
+    large_kb: 5000
+  redundancy_levels:
+    - "low"
+    - "medium"
+    - "high"
+  data_structures:
+    - "flat"
+    - "nested"
+    - "text_heavy"
+    - "numeric"
+
+serializers:
+  - "json"
+  - "json_gzip"
+  - "messagepack"
+
+gzip:
+  compression_level: 6
+
+analysis:
+  thresholds:
+    no_switch: 0.05
+    switch: 0.20

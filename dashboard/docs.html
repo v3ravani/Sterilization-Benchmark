@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serialization Benchmark | API Documentation</title>
+  <meta name="description" content="Interactive API documentation and endpoint test harness for Serialization Benchmark.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/style.css?v=20261001">
+  <style>
+    .docs-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .docs-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .docs-hero-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .docs-hero-desc {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      max-width: 800px;
+    }
+
+    .docs-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .docs-meta-pill {
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+    }
+
+    .docs-meta-pill strong {
+      color: var(--text-primary);
+    }
+
+    .docs-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .docs-search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      flex: 1;
+      max-width: 480px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .docs-search-input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: transparent;
+    }
+
+    .docs-categories-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .docs-cat-btn {
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .docs-cat-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .docs-cat-btn.active {
+      background: var(--color-primary);
+      color: #ffffff;
+      border-color: var(--color-primary);
+    }
+
+    .endpoint-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+
+    .endpoint-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .endpoint-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: #ffffff;
+      user-select: none;
+      gap: 12px;
+    }
+
+    .endpoint-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .method-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      min-width: 54px;
+      text-align: center;
+    }
+
+    .method-get {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+
+    .method-post {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid #0f172a;
+    }
+
+    .endpoint-path {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .endpoint-summary {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .endpoint-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .endpoint-toggle-icon {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .endpoint-card.is-open .endpoint-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .endpoint-body {
+      padding: 18px;
+      background: #fafafa;
+      border-top: 1px solid var(--border-color);
+      display: none;
+    }
+
+    .endpoint-card.is-open .endpoint-body {
+      display: block;
+    }
+
+    .endpoint-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .endpoint-section-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-bottom: 16px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .params-table th,
+    .params-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .params-table th {
+      background: #f8fafc;
+      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .params-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .param-name {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .param-type {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .param-input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border-input);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      outline: none;
+    }
+
+    .param-input:focus {
+      border-color: var(--color-primary);
+    }
+
+    .body-textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      border: 1px solid var(--border-input);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: var(--text-primary);
+      outline: none;
+      resize: vertical;
+      margin-bottom: 16px;
+    }
+
+    .body-textarea:focus {
+      border-color: var(--color-primary);
+    }
+
+    .endpoint-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .response-container {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: none;
+    }
+
+    .response-header {
+      padding: 8px 14px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .response-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .status-2xx {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status-4xx,
+    .status-5xx {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .response-time {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .response-pre {
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #1e293b;
+      background: #ffffff;
+      max-height: 380px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="docs-wrapper">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Serialization Benchmark</h1>
+          <p class="brand-subtitle">Interactive API Documentation & Endpoint Test Harness</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="server-status">
+          <span class="status-dot"></span>
+          <span class="status-label">Connected (FastAPI :8765)</span>
+        </div>
+        <a href="/dashboard/" class="btn btn-primary" id="btn-back-dashboard">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Back to Dashboard</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Overview Hero -->
+    <div class="docs-hero">
+      <h2 class="docs-hero-title">Research Harness API Reference</h2>
+      <p class="docs-hero-desc">
+        Directly test and inspect all HTTP endpoints exposed by the benchmark server. Test workload generation, real-time benchmark execution, analytical decision models, CSV tables, and plot generation.
+      </p>
+      <div class="docs-meta-row">
+        <span class="docs-meta-pill">Base URL: <strong>http://127.0.0.1:8765</strong></span>
+        <span class="docs-meta-pill">Formats: <strong>JSON, JSON+GZIP, MessagePack</strong></span>
+        <span class="docs-meta-pill">Spec: <strong>OpenAPI 3.1 REST API</strong></span>
+        <span class="docs-meta-pill">Live Execution: <strong>Interactive In-Browser</strong></span>
+      </div>
+    </div>
+
+    <!-- Filter & Category Toolbar -->
+    <div class="docs-toolbar">
+      <div class="docs-search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="docs-search-input" class="docs-search-input" placeholder="Search endpoints by path, method, or name...">
+      </div>
+
+      <div class="docs-categories-row" id="docs-cat-filters">
+        <button type="button" class="docs-cat-btn active" data-cat="all">All (17)</button>
+        <button type="button" class="docs-cat-btn" data-cat="Execution">Execution</button>
+        <button type="button" class="docs-cat-btn" data-cat="Workloads">Workloads</button>
+        <button type="button" class="docs-cat-btn" data-cat="Tables">Tables</button>
+        <button type="button" class="docs-cat-btn" data-cat="Decision">Decision Model</button>
+        <button type="button" class="docs-cat-btn" data-cat="Results">Results & Plots</button>
+        <button type="button" class="docs-cat-btn" data-cat="System">System & Harness</button>
+      </div>
+    </div>
+
+    <!-- Endpoint Cards List -->
+    <div id="endpoints-list">
+      <!-- Generated dynamically below -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer" style="width: 100%; margin-top: 36px; padding-top: 16px; padding-bottom: 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; text-align: center;">
+      <p class="app-footer-text" style="margin: 0; text-align: center; font-size: 11px; font-weight: 500; color: #64748b; letter-spacing: 0.3px; width: 100%;">Built by Prithvi Kharje &amp; Viraj Ravani</p>
+    </footer>
+  </div>
+
+  <script>
+    const ENDPOINTS = [
+      {
+        id: 'ep-health',
+        method: 'GET',
+        path: '/health',
+        cat: 'System',
+        summary: 'Server health and liveness check',
+        description: 'Returns server status, registered serializer names (json, json_gzip, messagepack), and current server timestamp.',
+        params: []
+      },
+      {
+        id: 'ep-data',
+        method: 'POST',
+        path: '/data',
+        cat: 'System',
+        summary: 'Receive and benchmark deserialize payload',
+        description: 'Receives serialized payload bytes, executes timed deserialization, and measures server-side processing metrics.',
+        headers: [
+          { name: 'X-Serializer-Format', default: 'json', desc: 'Serializer format: json, json_gzip, messagepack' },
+          { name: 'X-Run-Index', default: '0', desc: 'Traceability run index' }
+        ],
+        body: JSON.stringify({ message: "Serialization test payload", items: [1, 2, 3, 4, 5] }, null, 2)
+      },
+      {
+        id: 'ep-options',
+        method: 'GET',
+        path: '/api/options',
+        cat: 'Workloads',
+        summary: 'Available benchmark options and catalog',
+        description: 'Returns the 10 curated canonical workloads, network profiles, and serialization formats supported by the harness.',
+        params: []
+      },
+      {
+        id: 'ep-workloads',
+        method: 'GET',
+        path: '/api/workloads',
+        cat: 'Workloads',
+        summary: 'Get 10 curated workloads with details',
+        description: 'Returns full metadata (structure, size_label, redundancy, seed, description) for all 10 standard workloads.',
+        params: []
+      },
+      {
+        id: 'ep-dataset',
+        method: 'GET',
+        path: '/api/workloads/{workload_name}/dataset',
+        cat: 'Workloads',
+        summary: 'Get specific workload dataset preview',
+        description: 'Generates real synthetic data and serialization byte sizes for the chosen workload preset.',
+        params: [
+          { name: 'workload_name', in: 'path', default: 'flat_small_low', desc: 'Workload name (e.g., flat_small_low, nested_medium_high, text_large_high)' }
+        ]
+      },
+      {
+        id: 'ep-run',
+        method: 'POST',
+        path: '/api/benchmark/run',
+        cat: 'Execution',
+        summary: 'Trigger a benchmark run',
+        description: 'Starts a background benchmark execution across selected workloads, formats, network conditions, and repetitions.',
+        body: JSON.stringify({
+          workloads: ["flat_small_low"],
+          formats: ["json", "json_gzip", "messagepack"],
+          profiles: ["SLOW"],
+          repetitions: 3,
+          warmup_runs: 1,
+          quick: false,
+          generate_reports: true
+        }, null, 2)
+      },
+      {
+        id: 'ep-stop',
+        method: 'POST',
+        path: '/api/benchmark/stop',
+        cat: 'Execution',
+        summary: 'Stop currently running benchmark',
+        description: 'Requests immediate cooperative cancellation of the active benchmark execution thread.',
+        params: []
+      },
+      {
+        id: 'ep-status',
+        method: 'GET',
+        path: '/api/benchmark/status',
+        cat: 'Execution',
+        summary: 'Get benchmark execution progress and telemetry',
+        description: 'Returns real-time execution status (idle, running, stopped, completed, failed), percent completion, elapsed time, and ETA.',
+        params: []
+      },
+      {
+        id: 'ep-logs',
+        method: 'GET',
+        path: '/api/benchmark/logs',
+        cat: 'Execution',
+        summary: 'Get benchmark execution console logs',
+        description: 'Returns timestamped log messages and telemetry events emitted during benchmark execution.',
+        params: []
+      },
+      {
+        id: 'ep-results-latest',
+        method: 'GET',
+        path: '/api/results/latest',
+        cat: 'Results',
+        summary: 'Get latest benchmark results and decision model',
+        description: 'Returns aggregated format metrics, summary statistics, 3-zone recommendations, and artifact paths from the latest valid run.',
+        params: []
+      },
+      {
+        id: 'ep-results-export',
+        method: 'GET',
+        path: '/api/results/export',
+        cat: 'Results',
+        summary: 'Export complete benchmark results package (ZIP)',
+        description: 'Packages and streams all CSV benchmark tables, publication plots, and summary metadata as a downloadable ZIP archive.',
+        params: []
+      },
+      {
+        id: 'ep-results-export-pdf',
+        method: 'GET',
+        path: '/api/results/export/pdf',
+        cat: 'Results',
+        summary: 'Export complete publication research report (PDF)',
+        description: 'Compiles and streams a multi-page PDF document containing the executive summary, 3-zone decision framework, all 7 benchmark tables, and all 10 empirical charts.',
+        params: []
+      },
+      {
+        id: 'ep-reports-generate',
+        method: 'POST',
+        path: '/api/reports/generate',
+        cat: 'Results',
+        summary: 'Regenerate all 10 publication plots and 7 tables',
+        description: 'Re-runs the analysis pipeline to produce all Matplotlib plots and publication CSV tables from existing run records.',
+        params: []
+      },
+      {
+        id: 'ep-tables-list',
+        method: 'GET',
+        path: '/api/tables/list',
+        cat: 'Tables',
+        summary: 'List all 7 benchmark analysis tables',
+        description: 'Returns metadata, row counts, and titles for Tables 1 through 7 and raw measured records.',
+        params: []
+      },
+      {
+        id: 'ep-tables-view',
+        method: 'GET',
+        path: '/api/tables/view/{table_name}',
+        cat: 'Tables',
+        summary: 'View structured table data (rows & headers)',
+        description: 'Returns parsed headers, rows, and Markdown format representation for the specified benchmark table.',
+        params: [
+          { name: 'table_name', in: 'path', default: 'table1_config_dataset_summary', desc: 'Table name (e.g. table1_config_dataset_summary, table2, table4)' }
+        ]
+      },
+      {
+        id: 'ep-tables-download',
+        method: 'GET',
+        path: '/api/tables/download/{table_name}',
+        cat: 'Tables',
+        summary: 'Download benchmark table as CSV file',
+        description: 'Streams the specified table directly with attachment headers for file download.',
+        params: [
+          { name: 'table_name', in: 'path', default: 'table1_config_dataset_summary', desc: 'Table name without extension' }
+        ]
+      },
+      {
+        id: 'ep-decision',
+        method: 'GET',
+        path: '/api/decision/calculate',
+        cat: 'Decision',
+        summary: 'Interactive break-even and decision calculation',
+        description: 'Computes analytical 3-zone recommendations, break-even bandwidths (B_BE), and latency breakdowns for any custom input parameters.',
+        params: [
+          { name: 'payload_kb', in: 'query', default: '250', desc: 'Target payload size in KB (10 - 10000)' },
+          { name: 'bandwidth_mbps', in: 'query', default: '50', desc: 'Simulated network bandwidth in Mbps' },
+          { name: 'rtt_ms', in: 'query', default: '15', desc: 'Base RTT latency in milliseconds' },
+          { name: 'structure', in: 'query', default: 'nested', desc: 'Structure type: nested, flat, text, numeric' }
+        ]
+      },
+      {
+        id: 'ep-plots-list',
+        method: 'GET',
+        path: '/api/plots/list',
+        cat: 'Results',
+        summary: 'List all 10 publication charts and metadata',
+        description: 'Returns paths, titles, categories, and existence status for all 10 Matplotlib publication plots.',
+        params: []
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEndpoints(ENDPOINTS);
+      setupFilters();
+    });
+
+    function renderEndpoints(endpoints) {
+      const container = document.getElementById('endpoints-list');
+      container.innerHTML = '';
+
+      endpoints.forEach(ep => {
+        const card = document.createElement('div');
+        card.className = 'endpoint-card';
+        card.id = ep.id;
+        card.setAttribute('data-cat', ep.cat);
+        card.setAttribute('data-method', ep.method);
+        card.setAttribute('data-path', ep.path);
+
+        const methodClass = ep.method === 'GET' ? 'method-get' : 'method-post';
+
+        let paramsHtml = '';
+        if (ep.params && ep.params.length > 0) {
+          paramsHtml += `
+            <div class="endpoint-section-title">Parameters</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Location</th>
+                  <th>Description</th>
+                  <th style="width: 40%;">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ep.params.map(p => `
+                  <tr>
+                    <td>
+                      <div class="param-name">${escapeHtml(p.name)}</div>
+                    </td>
+                    <td><span class="param-type">${escapeHtml(p.in)}</span></td>
+                    <td style="color: var(--text-secondary);">${escapeHtml(p.desc || '')}</td>
+                    <td>
+                      <input type="text" class="param-input" data-param-name="${escapeHtml(p.name)}" data-param-in="${escapeHtml(p.in)}" value="${escapeHtml(p.default || '')}">
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
+        let headersHtml = '';
+        if (ep.headers && ep.headers.length > 0) {
+          headersHtml += `
+            <div class="endpoint-section-title">Headers</div>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Header</th>
+                  <th>Description</th>
+                  <th style="width: 40%;">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ep.headers.map(h => `
+                  <tr>
+                    <td><div class="param-name">${escapeHtml(h.name)}</div></td>
+                    <td style="color: var(--text-secondary);">${escapeHtml(h.desc || '')}</td>
+                    <td>
+                      <input type="text" class="param-input" data-header-name="${escapeHtml(h.name)}" value="${escapeHtml(h.default || '')}">
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
+        let bodyHtml = '';
+        if (ep.body) {
+          bodyHtml += `
+            <div class="endpoint-section-title">Request Body (application/json)</div>
+            <textarea class="body-textarea" data-body-id="${ep.id}">${escapeHtml(ep.body)}</textarea>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="endpoint-header" onclick="toggleEndpoint('${ep.id}')">
+            <div class="endpoint-header-left">
+              <span class="method-badge ${methodClass}">${ep.method}</span>
+              <span class="endpoint-path">${escapeHtml(ep.path)}</span>
+              <span class="endpoint-summary">${escapeHtml(ep.summary)}</span>
+            </div>
+            <div class="endpoint-header-right">
+              <span class="badge-chip">${escapeHtml(ep.cat)}</span>
+              <svg class="endpoint-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">${escapeHtml(ep.description)}</p>
+            ${paramsHtml}
+            ${headersHtml}
+            ${bodyHtml}
+            <div class="endpoint-actions">
+              <button type="button" class="btn btn-primary" onclick="executeEndpoint('${ep.id}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 3l14 9-14 9V3z"/>
+                </svg>
+                <span>Execute Request</span>
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="clearResponse('${ep.id}')">Clear</button>
+            </div>
+            <div class="response-container" id="response-${ep.id}">
+              <div class="response-header">
+                <div class="response-meta">
+                  <span class="status-badge" id="status-${ep.id}">200 OK</span>
+                  <span class="response-time" id="time-${ep.id}">0.0 ms</span>
+                </div>
+                <button type="button" class="btn btn-xs btn-outline" onclick="copyResponse('${ep.id}')">Copy JSON</button>
+              </div>
+              <pre class="response-pre" id="pre-${ep.id}"></pre>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function toggleEndpoint(id) {
+      const card = document.getElementById(id);
+      if (card) {
+        card.classList.toggle('is-open');
+      }
+    }
+
+    async function executeEndpoint(id) {
+      const ep = ENDPOINTS.find(e => e.id === id);
+      const card = document.getElementById(id);
+      if (!ep || !card) return;
+
+      const respContainer = document.getElementById(`response-${id}`);
+      const statusBadge = document.getElementById(`status-${id}`);
+      const timeBadge = document.getElementById(`time-${id}`);
+      const preEl = document.getElementById(`pre-${id}`);
+
+      let url = ep.path;
+      const queryParams = new URLSearchParams();
+      const headers = {};
+
+      // Process input parameters
+      const paramInputs = card.querySelectorAll('.param-input');
+      paramInputs.forEach(input => {
+        const paramName = input.getAttribute('data-param-name');
+        const paramIn = input.getAttribute('data-param-in');
+        const headerName = input.getAttribute('data-header-name');
+        const val = input.value.trim();
+
+        if (paramIn === 'path' && paramName) {
+          url = url.replace(`{${paramName}}`, encodeURIComponent(val));
+        } else if (paramIn === 'query' && paramName && val) {
+          queryParams.append(paramName, val);
+        } else if (headerName && val) {
+          headers[headerName] = val;
+        }
+      });
+
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += (url.includes('?') ? '&' : '?') + queryString;
+      }
+
+      const options = {
+        method: ep.method,
+        headers: headers
+      };
+
+      if (ep.method === 'POST') {
+        const textarea = card.querySelector(`textarea[data-body-id="${id}"]`);
+        if (textarea && textarea.value.trim()) {
+          options.body = textarea.value.trim();
+          if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+          }
+        }
+      }
+
+      respContainer.style.display = 'block';
+      preEl.textContent = 'Sending request...';
+
+      const startTime = performance.now();
+      try {
+        const res = await fetch(url, options);
+        const elapsed = (performance.now() - startTime).toFixed(1);
+
+        statusBadge.textContent = `${res.status} ${res.statusText || (res.ok ? 'OK' : 'Error')}`;
+        statusBadge.className = `status-badge ${res.ok ? 'status-2xx' : (res.status >= 500 ? 'status-5xx' : 'status-4xx')}`;
+        timeBadge.textContent = `${elapsed} ms`;
+
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const json = await res.json();
+          preEl.textContent = JSON.stringify(json, null, 2);
+        } else {
+          const text = await res.text();
+          preEl.textContent = text || `(Binary response or empty content: HTTP ${res.status})`;
+        }
+      } catch (err) {
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        statusBadge.textContent = 'Network Error';
+        statusBadge.className = 'status-badge status-5xx';
+        timeBadge.textContent = `${elapsed} ms`;
+        preEl.textContent = `Fetch error: ${err.message}\nEnsure backend server is running on http://127.0.0.1:8765.`;
+      }
+    }
+
+    function clearResponse(id) {
+      const respContainer = document.getElementById(`response-${id}`);
+      if (respContainer) respContainer.style.display = 'none';
+    }
+
+    function copyResponse(id) {
+      const preEl = document.getElementById(`pre-${id}`);
+      if (!preEl) return;
+      navigator.clipboard.writeText(preEl.textContent).then(() => {
+        alert('Response copied to clipboard!');
+      });
+    }
+
+    function setupFilters() {
+      const searchInput = document.getElementById('docs-search-input');
+      const catButtons = document.querySelectorAll('#docs-cat-filters .docs-cat-btn');
+
+      let currentCat = 'all';
+      let searchQuery = '';
+
+      function filterCards() {
+        const cards = document.querySelectorAll('.endpoint-card');
+        cards.forEach(c => {
+          const cat = c.getAttribute('data-cat');
+          const path = c.getAttribute('data-path').toLowerCase();
+          const method = c.getAttribute('data-method').toLowerCase();
+          const text = c.textContent.toLowerCase();
+
+          const matchesCat = currentCat === 'all' || cat === currentCat;
+          const matchesSearch = !searchQuery || path.includes(searchQuery) || method.includes(searchQuery) || text.includes(searchQuery);
+
+          if (matchesCat && matchesSearch) {
+            c.style.display = 'block';
+          } else {
+            c.style.display = 'none';
+          }
+        });
+      }
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        filterCards();
+      });
+
+      catButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          catButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCat = btn.getAttribute('data-cat');
+          filterCards();
+        });
+      });
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
